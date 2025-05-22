@@ -1,0 +1,62 @@
+services:
+  producer:
+    image: ${DOCKER_REGISTRY-}producer
+    build:
+      context: .
+      dockerfile: Producer/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      - kafka
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+
+  consumer:
+    image: ${DOCKER_REGISTRY-}consumer
+    build:
+      context: .
+      dockerfile: Consumer/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    depends_on:
+      - kafka
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+
+  kafka:
+    image: apache/kafka:4.0.0
+    restart: unless-stopped
+    environment:
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_KRAFT_CLUSTER_ID: local-cluster-1
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: ""
+
+volumes:
+  kafka_data:
