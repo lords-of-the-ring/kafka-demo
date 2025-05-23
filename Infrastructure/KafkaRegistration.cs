@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Producer;
+namespace Infrastructure;
 
 public static class KafkaRegistration
 {

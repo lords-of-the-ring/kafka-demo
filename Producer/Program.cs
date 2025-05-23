@@ -1,4 +1,5 @@
 using Contracts;
+using Infrastructure;
 using Producer;
 
 var builder = WebApplication.CreateBuilder(args);

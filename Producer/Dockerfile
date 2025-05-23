@@ -14,6 +14,7 @@ WORKDIR /src
 COPY ["nuget.config", "nuget.config"]
 COPY ["Producer/Producer.csproj", "Producer/"]
 COPY ["Contracts/Contracts.csproj", "Contracts/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 RUN dotnet restore "./Producer/Producer.csproj"
 COPY . .
 WORKDIR "/src/Producer"

@@ -1,9 +1,9 @@
 ﻿using Confluent.Kafka;
 using System.Text.Json;
 
-namespace Producer;
+namespace Infrastructure;
 
-public sealed class KafkaPublisher(IProducer<string, byte[]> _producer)
+internal sealed class KafkaPublisher(IProducer<string, byte[]> _producer)
     : IKafkaPublisher
 {
     public async Task PublishAsync<TMessageValue>(

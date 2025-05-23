@@ -1,4 +1,4 @@
-﻿namespace Producer;
+﻿namespace Infrastructure;
 
 public interface IKafkaPublisher
 {
