@@ -1,7 +1,7 @@
 using Contracts.TodoItems;
 using Kafka;
 
-namespace Notifications;
+namespace Notifications.Handlers;
 
 public sealed class BoardCreatedHandler(ILogger<BoardCreatedHandler> logger)
     : IKafkaHandler<BoardCreated>

@@ -1,7 +1,7 @@
 using Contracts.TodoItems;
 using Kafka;
 
-namespace Notifications;
+namespace Notifications.Handlers;
 
 public sealed class TodoItemDeletedHandler(ILogger<TodoItemDeletedHandler> logger)
     : IKafkaHandler<TodoItemDeleted>

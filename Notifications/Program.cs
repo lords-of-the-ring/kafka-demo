@@ -1,6 +1,6 @@
 using Contracts.TodoItems;
 using Kafka;
-using Notifications;
+using Notifications.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 

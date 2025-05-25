@@ -1,5 +1,4 @@
-### Create board
-
+### Create Board
 POST http://localhost:8081/boards
 Content-Type: application/json
 
