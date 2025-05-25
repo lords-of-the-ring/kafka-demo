@@ -1,27 +1,45 @@
 services:
-  producer:
-    image: ${DOCKER_REGISTRY-}producer
+  todo-items:
+    image: ${DOCKER_REGISTRY-}todo-items
     build:
       context: .
-      dockerfile: Producer/Dockerfile
+      dockerfile: TodoItems/Dockerfile
     restart: unless-stopped
     ports:
       - "8081:8080"
     depends_on:
-      - kafka
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     environment:
       - ASPNETCORE_HTTP_PORTS=8080
 
-  consumer:
-    image: ${DOCKER_REGISTRY-}consumer
+  notifications:
+    image: ${DOCKER_REGISTRY-}notifications
     build:
       context: .
-      dockerfile: Consumer/Dockerfile
+      dockerfile: Notifications/Dockerfile
     restart: unless-stopped
     ports:
       - "8082:8080"
     depends_on:
-      - kafka
+      kafka:
+        condition: service_started
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      
+  history:
+    image: ${DOCKER_REGISTRY-}history
+    build:
+      context: .
+      dockerfile: History/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8083:8080"
+    depends_on:
+      kafka:
+        condition: service_started
     environment:
       - ASPNETCORE_HTTP_PORTS=8080
 
@@ -52,11 +70,48 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - kafka
+      kafka:
+        condition: service_started
     environment:
       KAFKA_CLUSTERS_0_NAME: local-kafka
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: ""
+      
+  postgres:
+    image: postgres:17.5
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Qwerty1@
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  pgadmin:
+    image: dpage/pgadmin4:9.3
+    restart: unless-stopped
+    ports:
+      - "15433:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.admin
+      - PGADMIN_DEFAULT_PASSWORD=Qwerty1@
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:80/ || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   kafka_data:
+  postgres_data:
+  pgadmin_data:

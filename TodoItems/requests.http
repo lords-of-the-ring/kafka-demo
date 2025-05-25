@@ -1,0 +1,29 @@
+### Create board
+
+POST http://localhost:8081/boards
+Content-Type: application/json
+
+{
+  "id": "019704b9-b8f8-76cc-a8b1-591e4f8b9f4c",
+  "name": "Georgi's Board"
+}
+
+### Create Todo Item
+POST http://localhost:8081/todo-items
+Content-Type: application/json
+
+{
+  "id": "019704c5-92a3-7ba7-a502-ed87fc6baef6",
+  "boardId": "019704b9-b8f8-76cc-a8b1-591e4f8b9f4c",
+  "title": "Buy new shoes",
+  "description": "There is a discount on all Nike models until July.",
+  "dueDate": "2025-06-30T23:59:59+00:00"
+}
+
+### Delete Todo Item
+DELETE http://localhost:8081/todo-items
+Content-Type: application/json
+
+{
+  "id": "019704c5-92a3-7ba7-a502-ed87fc6baef6"
+}

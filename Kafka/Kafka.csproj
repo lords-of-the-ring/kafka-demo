@@ -10,4 +10,12 @@
 	  <ProjectReference Include="..\Kafka.Abstractions\Kafka.Abstractions.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Confluent.Kafka" Version="2.10.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
 </Project>
