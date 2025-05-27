@@ -77,30 +77,38 @@ internal sealed class KafkaBackgroundService : BackgroundService
     {
         await foreach (var consumeResult in reader.ReadAllAsync(cancellationToken))
         {
-            try
+            var processed = false;
+            
+            while (!processed)
             {
-                var typeNameHeader = consumeResult.Message.Headers.Single(h => h.Key == Constants.TypeNameHeader);
-                var typeName = Encoding.UTF8.GetString(typeNameHeader.GetValueBytes());
+                try
+                {
+                    var typeNameHeader = consumeResult.Message.Headers.Single(h => h.Key == Constants.TypeNameHeader);
+                    var typeName = Encoding.UTF8.GetString(typeNameHeader.GetValueBytes());
                 
-                var messageType = _messageCollection.GetMessageType(consumeResult.Topic, typeName);
-                var message = JsonSerializer.Deserialize(
-                    consumeResult.Message.Value,
-                    messageType,
-                    JsonSerializerOptions);
+                    var messageType = _messageCollection.GetMessageType(consumeResult.Topic, typeName);
+                    var message = JsonSerializer.Deserialize(
+                        consumeResult.Message.Value,
+                        messageType,
+                        JsonSerializerOptions);
                 
-                ArgumentNullException.ThrowIfNull(message);
+                    ArgumentNullException.ThrowIfNull(message);
                 
-                var handlerType = _messageCollection.GetHandlerType(consumeResult.Topic, typeName);
+                    var handlerType = _messageCollection.GetHandlerType(consumeResult.Topic, typeName);
 
-                await using var scope = _serviceScopeFactory.CreateAsyncScope();
-                var handler = scope.ServiceProvider.GetRequiredService(handlerType);
-                await ((dynamic)handler).HandleAsync((dynamic)message, cancellationToken);
+                    await using var scope = _serviceScopeFactory.CreateAsyncScope();
+                    var handler = scope.ServiceProvider.GetRequiredService(handlerType);
+                    await ((dynamic)handler).HandleAsync((dynamic)message, cancellationToken);
                 
-                _consumer.Commit(consumeResult);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error while processing message with key: '{Key}'.", partitionKey);
+                    _consumer.Commit(consumeResult);
+                    processed = true;
+                }
+                catch (Exception e)
+                {
+                    processed = false;
+                    _logger.LogError(e, "Error while processing message with key: '{Key}'.", partitionKey);
+                    await Task.Delay(5_000, cancellationToken);
+                }
             }
         }
         
