@@ -9,7 +9,7 @@ public static class KafkaRegistration
         string bootstrapServers)
     {
         services.AddSingleton<IKafkaPublisher, KafkaPublisher>();
-        
+
         services.AddSingleton(_ =>
         {
             var config = new ProducerConfig
@@ -19,7 +19,7 @@ public static class KafkaRegistration
 
             return new ProducerBuilder<string, byte[]>(config).Build();
         });
-        
+
         return services;
     }
 
@@ -36,17 +36,19 @@ public static class KafkaRegistration
         {
             services.AddScoped(handlerType);
         }
-        
+
         services.AddSingleton(kafkaMessageCollection);
-        
+
         services.AddHostedService<KafkaBackgroundService>();
-        
+
+        services.AddSingleton<ITopicFactory, TopicFactory>();
+
         services.AddSingleton(new KafkaConsumerSettings
         {
             BootstrapServers = bootstrapServers,
             GroupId = groupId,
         });
-        
+
         return services;
     }
 }
