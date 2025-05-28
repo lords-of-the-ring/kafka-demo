@@ -25,9 +25,9 @@ public static class DeleteTodoItem
             TodoItemId = todoItem.Id,
             BoardId = todoItem.BoardId,
         };
-        
+
         await publisher.PublishAsync(todoItemDeleted, cancellationToken);
-        
+
         return Results.NoContent();
     }
 }

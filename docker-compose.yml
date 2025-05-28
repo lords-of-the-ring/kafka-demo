@@ -21,8 +21,10 @@ services:
       context: .
       dockerfile: Notifications/Dockerfile
     restart: unless-stopped
+    deploy:
+      replicas: 2
     ports:
-      - "8082:8080"
+      - "8080"
     depends_on:
       kafka:
         condition: service_healthy
@@ -35,8 +37,10 @@ services:
       context: .
       dockerfile: History/Dockerfile
     restart: unless-stopped
+    deploy:
+      replicas: 2
     ports:
-      - "8083:8080"
+      - "8080"
     depends_on:
       kafka:
         condition: service_healthy
